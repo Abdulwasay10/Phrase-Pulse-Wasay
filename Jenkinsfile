@@ -16,7 +16,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image('phrase-pulse').run('-d -p 3001:3000')
+                    docker.image('phrase-pulse').run('-d -p 3001:3001')
                 }
             }
         }
