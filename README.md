@@ -1,70 +1,109 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Phrase Pulse - DevOps Pipeline Setup
 
-## Available Scripts
+This repository contains the source code for the Phrase Pulse project and the configuration for its automated CI/CD pipeline using Jenkins and Docker.
 
-In the project directory, you can run:
+## Overview
 
-### `npm start`
+This project demonstrates the implementation of a CI/CD pipeline to automate the building, testing, and deployment of the Phrase Pulse web application. The pipeline is configured to automatically pull changes from the GitHub repository, build a Docker image, and deploy the application on a server.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Pipeline Setup
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Prerequisites
 
-### `npm test`
+- **Jenkins** installed and configured on your server.
+- **Docker** installed on the server where Jenkins is running.
+- A **GitHub** repository with the application source code.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Step 1: Clone the Repository
 
-### `npm run build`
+Start by cloning this repository to your local machine:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+git clone https://github.com/Abdulwasay10/Phrase-Pulse-Wasay.git
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Step 2: Jenkins Pipeline Configuration
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Access Jenkins:** Log in to your Jenkins instance.
+2. **Create a New Pipeline:** 
+   - Go to `New Item`, select `Pipeline`, and give it a name (e.g., `Phrasepipeline`).
+   - In the Pipeline section, choose to define the pipeline script from SCM and select Git.
+   - Enter the repository URL: `https://github.com/Abdulwasay10/Phrase-Pulse-Wasay.git`.
 
-### `npm run eject`
+3. **Pipeline Script:**
+   Add the following Jenkins pipeline script (`Jenkinsfile`) to your repository:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   ```groovy
+   pipeline {
+       agent any
+       stages {
+           stage('Checkout') {
+               steps {
+                   git 'https://github.com/Abdulwasay10/Phrase-Pulse-Wasay.git'
+               }
+           }
+           stage('Build') {
+               steps {
+                   script {
+                       docker.build('phrase-pulse')
+                   }
+               }
+           }
+           stage('Deploy') {
+               steps {
+                   script {
+                       docker.image('phrase-pulse').run('-d -p 3000:3000')
+                   }
+               }
+           }
+       }
+   }
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Step 3: Docker Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. **Dockerfile:**
+   Ensure you have a `Dockerfile` in the root of your repository with the following content:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   ```Dockerfile
+   # Use an official Node.js runtime as a parent image
+   FROM node:14
 
-## Learn More
+   # Set the working directory to /app
+   WORKDIR /app
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   # Copy the current directory contents into the container at /app
+   COPY . /app
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   # Install any needed packages
+   RUN npm install
 
-### Code Splitting
+   # Make port 3000 available to the world outside this container
+   EXPOSE 3000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+   # Run the app
+   CMD ["npm", "start"]
+   ```
 
-### Analyzing the Bundle Size
+2. **Build and Run the Docker Container:**
+   Jenkins will automatically build the Docker image and run the container as part of the pipeline.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Step 4: Running the Pipeline
 
-### Making a Progressive Web App
+1. **Trigger the Pipeline:**
+   - After pushing the code to the repository, the pipeline will automatically trigger in Jenkins.
+   - Jenkins will pull the latest code, build the Docker image, and deploy the application.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+2. **Access the Application:**
+   - Once the pipeline is complete, the application will be running and accessible on the server at `http://<server-ip>:3000`.
 
-### Advanced Configuration
+### Troubleshooting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **Port Conflict:** If the pipeline fails during the deployment stage with an error about port 3000 being already in use, ensure no other processes are running on that port.
 
-### Deployment
+- **Docker Issues:** If there are issues with Docker, ensure Docker is installed correctly and that Jenkins has permission to execute Docker commands.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Conclusion
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This pipeline setup automates the process of deploying the Phrase Pulse application, ensuring continuous integration and continuous deployment. The use of Docker guarantees consistent environments across different stages of development and production.
