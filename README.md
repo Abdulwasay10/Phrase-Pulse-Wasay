@@ -94,9 +94,15 @@ git clone https://github.com/Abdulwasay10/Phrase-Pulse-Wasay.git
 1. **Trigger the Pipeline:**
    - After pushing the code to the repository, the pipeline will automatically trigger in Jenkins.
    - Jenkins will pull the latest code, build the Docker image, and deploy the application.
+```
+![image](https://github.com/user-attachments/assets/bb7810aa-4785-4b36-8f58-1e8c933a899d)
+```
 
 2. **Access the Application:**
    - Once the pipeline is complete, the application will be running and accessible on the server at `http://<server-ip>:3000`.
+```
+![image](https://github.com/user-attachments/assets/a976929a-d185-4730-981f-b8ade0e0d66f)
+```
 
 ### Troubleshooting
 
